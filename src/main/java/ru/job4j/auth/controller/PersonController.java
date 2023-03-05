@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.auth.model.Person;
-import ru.job4j.auth.repository.PersonRepository;
+import ru.job4j.auth.service.PersonService;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,36 +15,44 @@ import java.util.Optional;
 @AllArgsConstructor
 public class PersonController {
 
-    private final PersonRepository repository;
+    private final PersonService service;
 
     @GetMapping("/")
     public List<Person> findAll() {
-        return repository.findAll();
+        return service.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
-        Optional<Person> person = repository.findById(id);
-        return new ResponseEntity<Person>(person.orElse(new Person()),
+        Optional<Person> person = service.findById(id);
+        return new ResponseEntity<>(person.orElse(new Person()),
                 person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
-        return new ResponseEntity<Person>(repository.save(person), HttpStatus.CREATED);
+        return new ResponseEntity<>(service.save(person), HttpStatus.CREATED);
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
-        repository.save(person);
+        Optional<Person> personFromRepository = service.findById(person.getId());
+        if (personFromRepository.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        service.save(person);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
+        Optional<Person> personFromRepository = service.findById(id);
+        if (personFromRepository.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
         Person person = new Person();
         person.setId(id);
-        repository.delete(person);
+        service.delete(person);
         return ResponseEntity.ok().build();
     }
 
