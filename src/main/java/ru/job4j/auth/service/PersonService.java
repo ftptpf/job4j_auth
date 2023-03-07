@@ -28,4 +28,8 @@ public class PersonService {
     public void delete(Person person) {
         repository.delete(person);
     }
+
+    public Optional<Person> findByLoginAndPassword(String login, String password) {
+        return repository.findByLoginAndPassword(login, password);
+    }
 }
