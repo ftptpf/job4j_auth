@@ -1,6 +1,10 @@
 package ru.job4j.auth.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.job4j.auth.model.Person;
 import ru.job4j.auth.repository.PersonRepository;
@@ -8,9 +12,11 @@ import ru.job4j.auth.repository.PersonRepository;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.emptyList;
+
 @Service
 @AllArgsConstructor
-public class PersonService {
+public class PersonService implements UserDetailsService {
     private final PersonRepository repository;
 
     public List<Person> findAll() {
@@ -29,7 +35,12 @@ public class PersonService {
         repository.delete(person);
     }
 
-    public Optional<Person> findByLoginAndPassword(String login, String password) {
-        return repository.findByLoginAndPassword(login, password);
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<Person> user = repository.findByLogin(username);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException(username);
+        }
+        return new User(user.get().getLogin(), user.get().getPassword(), emptyList());
     }
 }

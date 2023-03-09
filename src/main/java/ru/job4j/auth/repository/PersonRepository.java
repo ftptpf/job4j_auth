@@ -11,5 +11,6 @@ public interface PersonRepository extends CrudRepository<Person, Integer> {
     @Override
     List<Person> findAll();
 
-    Optional<Person> findByLoginAndPassword(String login, String password);
+    Optional<Person> findByLogin(String login);
+
 }
