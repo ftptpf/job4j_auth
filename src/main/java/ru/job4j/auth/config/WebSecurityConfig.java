@@ -1,4 +1,4 @@
-package ru.job4j.auth.security;
+package ru.job4j.auth.config;
 
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -20,32 +20,25 @@ import static ru.job4j.auth.filter.JWTAuthenticationFilter.SIGN_UP_URL;
 
 @AllArgsConstructor
 @EnableWebSecurity
-public class WebSecurity extends WebSecurityConfigurerAdapter {
-    private PersonService service;
-    private BCryptPasswordEncoder encoder;
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private PersonService personService;
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors()
-                .and()
-                .csrf()
-                .disable()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.POST, SIGN_UP_URL)
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+        http.cors().and().csrf().disable()
+                .authorizeRequests().antMatchers(HttpMethod.POST, SIGN_UP_URL).permitAll()
+                .anyRequest().authenticated()
                 .and()
                 .addFilter(new JWTAuthenticationFilter(authenticationManager()))
                 .addFilter(new JWTAuthorizationFilter(authenticationManager()))
                 /* this disables session creation on Spring Security */
-                .sessionManagement()
-                .sessionCreationPolicy(STATELESS);
+                .sessionManagement().sessionCreationPolicy(STATELESS);
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(service).passwordEncoder(encoder);
+        auth.userDetailsService(personService).passwordEncoder(passwordEncoder);
     }
 
     @Bean

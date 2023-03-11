@@ -16,46 +16,46 @@ import java.util.Optional;
 @AllArgsConstructor
 public class PersonController {
 
-    private final PersonService service;
-    private final BCryptPasswordEncoder encoder;
+    private final PersonService personService;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @GetMapping("/")
     public List<Person> findAll() {
-        return service.findAll();
+        return personService.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
-        Optional<Person> person = service.findById(id);
+        Optional<Person> person = personService.findById(id);
         return new ResponseEntity<>(person.orElse(new Person()),
                 person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
-        person.setPassword(encoder.encode(person.getPassword()));
-        return new ResponseEntity<>(service.save(person), HttpStatus.CREATED);
+        person.setPassword(passwordEncoder.encode(person.getPassword()));
+        return new ResponseEntity<>(personService.save(person), HttpStatus.CREATED);
     }
 
     @PutMapping("/")
     public ResponseEntity<Void> update(@RequestBody Person person) {
-        Optional<Person> personFromRepository = service.findById(person.getId());
+        Optional<Person> personFromRepository = personService.findById(person.getId());
         if (personFromRepository.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-        service.save(person);
+        personService.save(person);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable int id) {
-        Optional<Person> personFromRepository = service.findById(id);
+        Optional<Person> personFromRepository = personService.findById(id);
         if (personFromRepository.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         Person person = new Person();
         person.setId(id);
-        service.delete(person);
+        personService.delete(person);
         return ResponseEntity.ok().build();
     }
 

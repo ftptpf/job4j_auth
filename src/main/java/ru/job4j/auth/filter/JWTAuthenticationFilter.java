@@ -7,14 +7,17 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.core.Authentication;
 import ru.job4j.auth.model.Person;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 
 @AllArgsConstructor
@@ -45,7 +48,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             return auth.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             creds.getLogin(),
-                            creds.getPassword())
+                            creds.getPassword(),
+                            new ArrayList<>())
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -55,17 +59,21 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     /**
      * Генерируем token.
      *
-     * @param req
-     * @param res
+     * @param request
+     * @param response
      * @param chain
      * @param auth
      */
-    protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
+    @Override
+    protected void successfulAuthentication(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            FilterChain chain,
+                                            Authentication auth) throws IOException, ServletException {
         String token = JWT.create()
-                .withSubject(((Person) auth.getPrincipal()).getLogin())
+                .withSubject(((User) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .sign(Algorithm.HMAC512(SECRET.getBytes()));
-        res.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
+        response.addHeader(HEADER_STRING, TOKEN_PREFIX + token);
     }
 
 }

@@ -12,8 +12,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 
-import static com.auth0.jwt.algorithms.Algorithm.*;
 import static ru.job4j.auth.filter.JWTAuthenticationFilter.*;
 
 
@@ -29,9 +29,10 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         String header = request.getHeader(HEADER_STRING);
         if (header == null || !header.startsWith(TOKEN_PREFIX)) {
             chain.doFilter(request, response);
+            return;
         }
-        UsernamePasswordAuthenticationToken token = getAuthentication(request);
-        SecurityContextHolder.getContext().setAuthentication(token);
+        UsernamePasswordAuthenticationToken authenticationToken = getAuthentication(request);
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         chain.doFilter(request, response);
     }
 
@@ -39,12 +40,12 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         String token = request.getHeader(HEADER_STRING);
         if (token != null) {
             /* parse the token. */
-            String person = JWT.require(HMAC512(SECRET.getBytes()))
+            String user = JWT.require(Algorithm.HMAC512(SECRET.getBytes()))
                     .build()
                     .verify(token.replace(TOKEN_PREFIX, ""))
                     .getSubject();
-            if (person != null) {
-                return new UsernamePasswordAuthenticationToken(person, null);
+            if (user != null) {
+                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
             }
             return null;
         }
