@@ -2,9 +2,9 @@ package ru.job4j.auth.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.auth.model.Person;
@@ -68,15 +68,15 @@ public class PersonController {
     }
 
 
-    @ExceptionHandler(value = {IllegalArgumentException.class})
-    public void handleException(IllegalArgumentException e,
+    @ExceptionHandler(value = {HttpMessageNotReadableException.class})
+    public void handleException(Exception e,
                                 HttpServletRequest request,
                                 HttpServletResponse response) throws IOException {
         Map<String, String> exceptionInformation = new HashMap<>();
         exceptionInformation.put("message", "Illegal arguments in fields");
         exceptionInformation.put("details", e.getMessage());
 
-        response.setStatus(HttpStatus.NOT_ACCEPTABLE.value());
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
         response.setContentType("application/json");
         response.getWriter().write(objectMapper.writeValueAsString(exceptionInformation));
     }

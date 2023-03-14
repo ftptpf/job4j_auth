@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS persons (
     id SERIAL PRIMARY KEY NOT NULL ,
-    login TEXT ,
-    password TEXT
+    login TEXT UNIQUE NOT NULL ,
+    password TEXT NOT NULL
 );
 
 COMMENT ON TABLE persons IS 'Пользователи';
