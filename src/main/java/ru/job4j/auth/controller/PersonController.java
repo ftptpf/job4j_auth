@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.job4j.auth.model.Person;
 import ru.job4j.auth.service.PersonService;
 
@@ -34,13 +34,20 @@ public class PersonController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Person> findById(@PathVariable int id) {
-        Optional<Person> person = personService.findById(id);
-        return new ResponseEntity<>(person.orElse(new Person()),
-                person.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+        Person person = personService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Person is not found. Please, check id."));
+        return new ResponseEntity<>(person, HttpStatus.OK);
     }
 
     @PostMapping("/")
     public ResponseEntity<Person> create(@RequestBody Person person) {
+        if (person.getPassword().contains("*")) {
+            throw new IllegalArgumentException("Password contains *. It's not allowed symbol.");
+        }
+        if (person.getLogin().isBlank() || person.getPassword().isBlank()) {
+            throw new NullPointerException("Invalid username or password.");
+        }
         person.setPassword(passwordEncoder.encode(person.getPassword()));
         return new ResponseEntity<>(personService.save(person), HttpStatus.CREATED);
     }
@@ -50,6 +57,9 @@ public class PersonController {
         Optional<Person> personFromRepository = personService.findById(person.getId());
         if (personFromRepository.isEmpty()) {
             return ResponseEntity.notFound().build();
+        }
+        if (person.getLogin().isBlank() || person.getPassword().isBlank()) {
+            throw new NullPointerException("Invalid username or password.");
         }
         personService.save(person);
         return ResponseEntity.ok().build();
@@ -68,7 +78,7 @@ public class PersonController {
     }
 
 
-    @ExceptionHandler(value = {HttpMessageNotReadableException.class})
+    @ExceptionHandler(value = {IllegalArgumentException.class})
     public void handleException(Exception e,
                                 HttpServletRequest request,
                                 HttpServletResponse response) throws IOException {
