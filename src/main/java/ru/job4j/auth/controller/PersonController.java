@@ -53,7 +53,7 @@ public class PersonController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<Void> update(@RequestBody Person person) {
+    public ResponseEntity<?> update(@RequestBody Person person) {
         Optional<Person> personFromRepository = personService.findById(person.getId());
         if (personFromRepository.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -62,11 +62,11 @@ public class PersonController {
             throw new NullPointerException("Invalid username or password.");
         }
         personService.save(person);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Success update");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable int id) {
+    public ResponseEntity<?> delete(@PathVariable int id) {
         Optional<Person> personFromRepository = personService.findById(id);
         if (personFromRepository.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -74,7 +74,7 @@ public class PersonController {
         Person person = new Person();
         person.setId(id);
         personService.delete(person);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok("Success delete");
     }
 
 
