@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.job4j.auth.dto.PersonDTO;
 import ru.job4j.auth.model.Person;
 import ru.job4j.auth.service.PersonService;
 
@@ -63,6 +64,22 @@ public class PersonController {
         }
         personService.save(person);
         return ResponseEntity.ok("Success update");
+    }
+
+    @PatchMapping("/")
+    public ResponseEntity<?> passwordUpdate(@RequestBody PersonDTO personDTO) {
+        Optional<Person> personFromRepository = personService.findById(personDTO.getId());
+        if (personFromRepository.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (personDTO.getPassword().isBlank()) {
+            throw new NullPointerException("Invalid password.");
+        }
+        String login = personFromRepository.get().getLogin();
+        Person person = new Person(personDTO.getId(), login, passwordEncoder.encode(personDTO.getPassword()));
+        personService.save(person);
+        return ResponseEntity.ok(String.format("The %s password has been successfully updated.", login));
+
     }
 
     @DeleteMapping("/{id}")
