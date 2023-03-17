@@ -13,6 +13,7 @@ import ru.job4j.auth.service.PersonService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -42,7 +43,7 @@ public class PersonController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<Person> create(@RequestBody Person person) {
+    public ResponseEntity<Person> create(@Valid @RequestBody Person person) {
         if (person.getPassword().contains("*")) {
             throw new IllegalArgumentException("Password contains *. It's not allowed symbol.");
         }
@@ -54,7 +55,7 @@ public class PersonController {
     }
 
     @PutMapping("/")
-    public ResponseEntity<?> update(@RequestBody Person person) {
+    public ResponseEntity<?> update(@Valid @RequestBody Person person) {
         Optional<Person> personFromRepository = personService.findById(person.getId());
         if (personFromRepository.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -67,7 +68,7 @@ public class PersonController {
     }
 
     @PatchMapping("/")
-    public ResponseEntity<?> passwordUpdate(@RequestBody PersonDTO personDTO) {
+    public ResponseEntity<?> passwordUpdate(@Valid @RequestBody PersonDTO personDTO) {
         Optional<Person> personFromRepository = personService.findById(personDTO.getId());
         if (personFromRepository.isEmpty()) {
             return ResponseEntity.notFound().build();
