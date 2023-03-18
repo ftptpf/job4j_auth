@@ -39,37 +39,44 @@
 
 #### Создание
 ```POST http://localhost:8080/person/```
+
 Для начала работы необходимо зарегистрировать пользователя.
 ![Alt-текст](https://github.com/ftptpf/job4j_auth/blob/master/img/1.JPG "Создание пользователя")
 Пароль пользователя хранится в базе в зашифрованном виде.
 
 #### Аутентификация
 ```POST http://localhost:8080/login```
+
 Чтобы выполнять запросы и изменение данных пользователей, необходимо пройти аутентификацию.
 ![Alt-текст](https://github.com/ftptpf/job4j_auth/blob/master/img/2.JPG "Логин пользователя")
 При положительном прохождении аутентификации формируется jwt-токен, который мы будем использовать в других запросах. 
 
 #### Обновление данных
 ```PUT http://localhost:8080/person/```
+
 Мы можем обновить данные пользователя
 ![Alt-текст](https://github.com/ftptpf/job4j_auth/blob/master/img/3.JPG "Обновление имени и пароля пользователя")
 
 #### Обновление пароля
 ```PATCH http://localhost:8080/person/```
-Или только обновить его пароль
+
+Обновление пароля пользователя
 ![Alt-текст](https://github.com/ftptpf/job4j_auth/blob/master/img/4.JPG "Обновление пароля пользователя")
 
 #### Поиск пользователя по id
 ```GET http://localhost:8080/person/id```
+
 Выполняем поиск конкретного пользователя
 ![Alt-текст](https://github.com/ftptpf/job4j_auth/blob/master/img/5.JPG "Поиск пользователя")
 
 #### Поиск всех пользователей
 ```GET http://localhost:8080/person/```
-Находим всех пользователей системы
+
+Находим всех пользователей
 ![Alt-текст](https://github.com/ftptpf/job4j_auth/blob/master/img/6.JPG "Все пользователи")
 
 #### Удаление пользователя по id
 ```DELETE http://localhost:8080/person/id```
+
 Удаляем конкретного пользователя
 ![Alt-текст](https://github.com/ftptpf/job4j_auth/blob/master/img/7.JPG "Удаляем пользователя")
